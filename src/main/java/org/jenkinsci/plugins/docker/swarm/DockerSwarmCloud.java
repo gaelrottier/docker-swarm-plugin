@@ -26,6 +26,7 @@ import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.docker.swarm.docker.api.ping.PingRequest;
 import org.jenkinsci.plugins.docker.swarm.docker.api.response.ApiError;
 import org.jenkinsci.plugins.docker.swarm.docker.api.response.ApiException;
+import org.jenkinsci.plugins.docker.swarm.docker.marshalling.Jackson;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
@@ -225,7 +226,9 @@ public class DockerSwarmCloud extends Cloud {
         File swarmConfigYaml = new File(configsDir, "swarm.yml");
         if (swarmConfigYaml.exists()) {
             LOGGER.info("Configuring swarm plugin from " + swarmConfigYaml.getAbsolutePath());
-            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            ObjectMapper mapper = Jackson.getYamlObjectMapper();
+            mapper.addMixIn(DockerServerEndpoint.class, DockerServerEndpointMixin.class);
+
             try (InputStream in = new BufferedInputStream(new FileInputStream(swarmConfigYaml))) {
                 DockerSwarmCloud configuration = mapper.readValue(in, DockerSwarmCloud.class);
                 DockerSwarmCloud existingCloud = DockerSwarmCloud.get();

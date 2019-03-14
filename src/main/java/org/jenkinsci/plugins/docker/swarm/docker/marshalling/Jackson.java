@@ -8,19 +8,25 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 public class Jackson {
 
-  private static final ObjectMapper defaultObjectMapper = new ObjectMapper();
-  static{
-    defaultObjectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
-    defaultObjectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-    defaultObjectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-    defaultObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
-  }
+    private static final ObjectMapper defaultObjectMapper = new ObjectMapper();
+    private static final ObjectMapper yamlObjectMapper = new ObjectMapper(new YAMLFactory());
+
+    static {
+        for (ObjectMapper objectMapper : Arrays.asList(defaultObjectMapper, yamlObjectMapper)) {
+            objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+            objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+            objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        }
+    }
 
 
 
@@ -61,6 +67,10 @@ public class Jackson {
   }
   public static ObjectMapper getDefaultObjectMapper() {
     return defaultObjectMapper;
+  }
+
+  public static ObjectMapper getYamlObjectMapper() {
+    return yamlObjectMapper;
   }
 
     public static Object fromJSON(String json, Class<?> responseClass, ResponseType responseType) {
